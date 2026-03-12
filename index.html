@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proxy Links Manager</title>
+    <title>Proxy Links</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,105 +17,73 @@
             border-bottom: 2px solid #007bff;
             padding-bottom: 10px;
         }
-        textarea {
-            width: 100%;
-            height: 200px;
-            padding: 10px;
-            font-family: monospace;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            resize: vertical;
-        }
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 10px 0;
-        }
-        button:hover {
-            background: #0056b3;
-        }
         #linkList {
             background: white;
             border: 1px solid #ddd;
             border-radius: 5px;
             padding: 15px;
-            min-height: 100px;
             word-wrap: break-word;
         }
         #linkList a {
             display: block;
-            margin: 5px 0;
+            margin: 8px 0;
             color: #007bff;
             text-decoration: none;
+            font-size: 16px;
         }
         #linkList a:hover {
             text-decoration: underline;
         }
-        .info {
+        .footer {
+            margin-top: 20px;
             font-size: 14px;
             color: #666;
-            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>🔗 Proxy Links Manager</h1>
-    <p>Paste your proxy links (one per line) below, then click "Convert to Links".</p>
-    
-    <textarea id="inputLinks" placeholder="https://proxy1.com&#10;https://proxy2.org&#10;https://proxy3.net"></textarea>
-    <br>
-    <button onclick="convertToLinks()">Convert to Links</button>
-    
-    <h2>Your Proxy Links:</h2>
+    <h1>🔗 Proxy Links</h1>
     <div id="linkList">
-        <!-- Converted links will appear here -->
+        <!-- Links will be loaded from links.json -->
+        <p>Loading links...</p>
+    </div>
+    <div class="footer">
+        <!-- This message is only visible to you (optional) -->
+        <p>To update these links, edit the <code>links.json</code> file in the repository.</p>
     </div>
 
-    <p class="info">Only you can edit this page because you're the repository owner. To update the list, edit the HTML file and push changes.</p>
-
     <script>
-        function convertToLinks() {
-            const textarea = document.getElementById('inputLinks');
-            const linksText = textarea.value;
-            const lines = linksText.split('\n').filter(line => line.trim() !== '');
-            const linkListDiv = document.getElementById('linkList');
-            
-            // Clear previous content
-            linkListDiv.innerHTML = '';
-            
-            if (lines.length === 0) {
-                linkListDiv.innerHTML = '<p>No links entered.</p>';
-                return;
-            }
-            
-            // Create a clickable link for each line
-            lines.forEach(line => {
-                const trimmed = line.trim();
-                // Basic URL validation: if it doesn't start with http:// or https://, prepend https://
-                let url = trimmed;
-                if (!url.match(/^https?:\/\//i)) {
-                    url = 'https://' + url;
+        // Fetch the links from the JSON file and display them
+        fetch('links.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load links');
                 }
-                const link = document.createElement('a');
-                link.href = url;
-                link.target = '_blank'; // Open in new tab
-                link.rel = 'noopener noreferrer';
-                link.textContent = trimmed; // Show original text
-                linkListDiv.appendChild(link);
+                return response.json();
+            })
+            .then(data => {
+                const container = document.getElementById('linkList');
+                container.innerHTML = ''; // Clear loading message
+
+                if (!data.links || data.links.length === 0) {
+                    container.innerHTML = '<p>No proxy links available.</p>';
+                    return;
+                }
+
+                // Create a clickable link for each entry
+                data.links.forEach(item => {
+                    const link = document.createElement('a');
+                    link.href = item.url;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.textContent = item.name || item.url; // Use name if provided, else URL
+                    container.appendChild(link);
+                });
+            })
+            .catch(error => {
+                document.getElementById('linkList').innerHTML = '<p>Error loading links. Please try again later.</p>';
+                console.error('Error:', error);
             });
-        }
-        
-        // Optional: auto-convert on page load with example data
-        window.onload = function() {
-            // You can pre-fill the textarea with some default links if you want
-            // document.getElementById('inputLinks').value = "example.com\nhttp://test.org";
-            // convertToLinks();
-        };
     </script>
 </body>
 </html>
