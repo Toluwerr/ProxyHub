@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy Links Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            font-family: monospace;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: vertical;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #linkList {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            min-height: 100px;
+            word-wrap: break-word;
+        }
+        #linkList a {
+            display: block;
+            margin: 5px 0;
+            color: #007bff;
+            text-decoration: none;
+        }
+        #linkList a:hover {
+            text-decoration: underline;
+        }
+        .info {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔗 Proxy Links Manager</h1>
+    <p>Paste your proxy links (one per line) below, then click "Convert to Links".</p>
+    
+    <textarea id="inputLinks" placeholder="https://proxy1.com&#10;https://proxy2.org&#10;https://proxy3.net"></textarea>
+    <br>
+    <button onclick="convertToLinks()">Convert to Links</button>
+    
+    <h2>Your Proxy Links:</h2>
+    <div id="linkList">
+        <!-- Converted links will appear here -->
+    </div>
+
+    <p class="info">Only you can edit this page because you're the repository owner. To update the list, edit the HTML file and push changes.</p>
+
+    <script>
+        function convertToLinks() {
+            const textarea = document.getElementById('inputLinks');
+            const linksText = textarea.value;
+            const lines = linksText.split('\n').filter(line => line.trim() !== '');
+            const linkListDiv = document.getElementById('linkList');
+            
+            // Clear previous content
+            linkListDiv.innerHTML = '';
+            
+            if (lines.length === 0) {
+                linkListDiv.innerHTML = '<p>No links entered.</p>';
+                return;
+            }
+            
+            // Create a clickable link for each line
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                // Basic URL validation: if it doesn't start with http:// or https://, prepend https://
+                let url = trimmed;
+                if (!url.match(/^https?:\/\//i)) {
+                    url = 'https://' + url;
+                }
+                const link = document.createElement('a');
+                link.href = url;
+                link.target = '_blank'; // Open in new tab
+                link.rel = 'noopener noreferrer';
+                link.textContent = trimmed; // Show original text
+                linkListDiv.appendChild(link);
+            });
+        }
+        
+        // Optional: auto-convert on page load with example data
+        window.onload = function() {
+            // You can pre-fill the textarea with some default links if you want
+            // document.getElementById('inputLinks').value = "example.com\nhttp://test.org";
+            // convertToLinks();
+        };
+    </script>
+</body>
+</html>
